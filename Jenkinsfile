@@ -31,10 +31,19 @@ pipeline {
         stage('Push Docker Images') {
             steps {
                 script {
-                    withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                        sh "echo \$DOCKER_PASS | docker login -u \$DOCKER_USER --password-stdin"
-                        sh "docker push ${DOCKER_REGISTRY}/user_service:${DOCKER_TAG}"
-                        sh "docker push ${DOCKER_REGISTRY}/task_service:${DOCKER_TAG}"
+                    withCredentials(
+                    [
+                        usernamePassword(
+                            credentialsId: 'dockerhub-creds',
+                            usernameVariable: 'DOCKER_USER',
+                            passwordVariable: 'DOCKER_PASS'
+                        )
+                    ]) {
+                        sh """
+                            echo $DOCKERHUB_PASS | docker login -u $DOCKERHUB_USER --password-stdin
+                            docker push ${DOCKER_REGISTRY}/user_service:${DOCKER_TAG}
+                            docker push ${DOCKER_REGISTRY}/task_service:${DOCKER_TAG}
+                        """
                     }
                 }
             }
