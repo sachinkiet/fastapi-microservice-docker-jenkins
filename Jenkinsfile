@@ -2,14 +2,20 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_REGISTRY = "your-dockerhub-username"   // or private registry
+        DOCKER_REGISTRY = "sachinkiet"   // DockerHub username or registry name
         DOCKER_TAG = "latest"
+    }
+
+    tools {
+        git 'Default'
     }
 
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/your-org/fastapi_micro_service_arch.git'
+                git branch: 'main',
+				url: 'https://eos2git.cec.lab.emc.com/Sachin-Shukla/fastapi_micro_service_arch.git',
+				credentialsId: '2b561b67-2fce-4300-96c8-9f69d27265f8'
             }
         }
 
@@ -25,9 +31,11 @@ pipeline {
         stage('Push Docker Images') {
             steps {
                 script {
-                    sh "echo \$DOCKERHUB_PASS | docker login -u \$DOCKERHUB_USER --password-stdin"
-                    sh "docker push ${DOCKER_REGISTRY}/user_service:${DOCKER_TAG}"
-                    sh "docker push ${DOCKER_REGISTRY}/task_service:${DOCKER_TAG}"
+                    withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                        sh "echo \$DOCKER_PASS | docker login -u \$DOCKER_USER --password-stdin"
+                        sh "docker push ${DOCKER_REGISTRY}/user_service:${DOCKER_TAG}"
+                        sh "docker push ${DOCKER_REGISTRY}/task_service:${DOCKER_TAG}"
+                    }
                 }
             }
         }
@@ -35,7 +43,9 @@ pipeline {
         stage('Deploy with Docker Compose') {
             steps {
                 script {
+                    // stop existing containers, ignore errors if not running
                     sh "docker compose down || true"
+                    // start new containers in detached mode
                     sh "docker compose up -d"
                 }
             }
