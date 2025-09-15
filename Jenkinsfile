@@ -7,7 +7,7 @@ pipeline {
     }
 
     tools {
-        git 'Default'
+        git 'Git-2.43.0'
     }
 
     stages {
