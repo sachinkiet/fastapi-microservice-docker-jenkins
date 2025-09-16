@@ -15,6 +15,19 @@ pipeline {
                     credentialsId: '2b561b67-2fce-4300-96c8-9f69d27265f8'
             }
         }
+		
+		stage('Run Tests') {
+			steps {
+				// Run tests for user_service
+				sh '''echo "Running tests for user_service..."
+				sh 'pip install -r user_service/requirements.txt'
+				sh 'pytest user_service/tests -v'
+				// Run tests for task_service
+				sh '''echo "Running tests for task_service..."
+				sh 'pip install -r task_service/requirements.txt'
+				sh 'pytest task_service/tests -v'
+			}
+		}
 
         stage('Build Docker Images') {
             steps {
