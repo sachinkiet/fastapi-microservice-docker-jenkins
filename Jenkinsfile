@@ -17,21 +17,25 @@ pipeline {
         }
 		
 		stage('Run Tests') {
-			agent {
-				docker {
-					image 'python:3.11'
-					reuseNode true
-				}
-			}
+			agent any
 			steps {
-				sh 'echo "Running tests for user_service..."'
-				sh 'pip install -r user_service/requirements.txt'
-				sh 'pytest user_service/tests -v'
-				sh 'echo "Running tests for task_service..."'
-				sh 'pip install -r task_service/requirements.txt'
-				sh 'pytest task_service/tests -v'
+				// Run user_service tests inside Python docker
+				sh '''
+				docker run --rm -v $PWD:/app -w /app -e HOME=/tmp python:3.11 bash -c "
+				  pip install --break-system-packages -r user_service/requirements.txt &&
+				  pytest user_service/tests -v
+				"
+				'''
+				// Run task_service tests inside Python docker
+				sh '''
+				docker run --rm -v $PWD:/app -w /app -e HOME=/tmp python:3.11 bash -c "
+				  pip install --break-system-packages -r task_service/requirements.txt &&
+				  pytest task_service/tests -v
+				"
+				'''
 			}
 		}
+
 
         stage('Build Docker Images') {
             steps {
