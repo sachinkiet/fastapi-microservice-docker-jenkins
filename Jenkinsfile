@@ -2,16 +2,17 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_REGISTRY = "sachinkiet"   // or private registry
-        DOCKER_TAG = "latest"
+        DOCKER_REGISTRY = "sachinkiet"     // Your DockerHub username or registry
+        DOCKER_TAG = "${env.BUILD_NUMBER}" // Auto-tag images with Jenkins build number
     }
 
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', 
-				url: 'https://eos2git.cec.lab.emc.com/Sachin-Shukla/fastapi_micro_service_arch.git',
-				credentialsId: '2b561b67-2fce-4300-96c8-9f69d27265f8'
+                // Pull source code from Git
+                git branch: 'main',
+                    url: 'https://eos2git.cec.lab.emc.com/Sachin-Shukla/fastapi_micro_service_arch.git',
+                    credentialsId: '2b561b67-2fce-4300-96c8-9f69d27265f8'
             }
         }
 
@@ -26,17 +27,11 @@ pipeline {
 
         stage('Push Docker Images') {
             steps {
-                // ✅ Credentials block here
-                withCredentials([usernamePassword(
-                    credentialsId: 'dockerhub-creds',
-                    usernameVariable: 'DOCKERHUB_USER',
-                    passwordVariable: 'DOCKERHUB_PASS')]) {
-                    
-                    sh """
-                        echo $DOCKERHUB_PASS | docker login -u $DOCKERHUB_USER --password-stdin
-                        docker push ${DOCKER_REGISTRY}/user_service:${DOCKER_TAG}
-                        docker push ${DOCKER_REGISTRY}/task_service:${DOCKER_TAG}
-                    """
+                // Use credentials securely without Groovy interpolation
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKERHUB_USER', passwordVariable: 'DOCKERHUB_PASS')]) {
+                    sh 'echo $DOCKERHUB_PASS | docker login -u $DOCKERHUB_USER --password-stdin'
+                    sh "docker push ${DOCKER_REGISTRY}/user_service:${DOCKER_TAG}"
+                    sh "docker push ${DOCKER_REGISTRY}/task_service:${DOCKER_TAG}"
                 }
             }
         }
@@ -44,8 +39,10 @@ pipeline {
         stage('Deploy with Docker Compose') {
             steps {
                 script {
+                    // Pull new images with version tag into docker-compose
                     sh "docker compose down || true"
-                    sh "docker compose up -d"
+                    // Optional: force re-pull of tagged images
+                    sh "docker compose up -d --pull always"
                 }
             }
         }
@@ -53,13 +50,13 @@ pipeline {
 
     post {
         always {
-            echo 'Pipeline finished.'
+            echo "Pipeline finished."
         }
         failure {
-            echo 'Pipeline failed ❌'
+            echo "Pipeline failed ❌"
         }
         success {
-            echo 'Pipeline succeeded ✅'
+            echo "Pipeline succeeded ✅"
         }
     }
 }
