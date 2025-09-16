@@ -17,12 +17,16 @@ pipeline {
         }
 		
 		stage('Run Tests') {
+			agent {
+				docker {
+					image 'python:3.11'
+					reuseNode true
+				}
+			}
 			steps {
-				// Run tests for user_service
 				sh 'echo "Running tests for user_service..."'
 				sh 'pip install -r user_service/requirements.txt'
 				sh 'pytest user_service/tests -v'
-				// Run tests for task_service
 				sh 'echo "Running tests for task_service..."'
 				sh 'pip install -r task_service/requirements.txt'
 				sh 'pytest task_service/tests -v'
