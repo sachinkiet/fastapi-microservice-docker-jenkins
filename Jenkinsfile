@@ -75,6 +75,10 @@ pipeline {
     }
 
     post {
+		aborted {
+            echo "Build aborted — cleaning up leftover containers..."
+            sh 'docker compose down || true'
+        }
         always {
 			echo "Pipeline finished."
             cleanWs() // Clean up workspace after every build to prevent lock issues
