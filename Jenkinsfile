@@ -81,19 +81,6 @@ pipeline {
 		}
 		always {
 			echo "Pipeline finished."
-
-			script {
-				// Safely clean workspace only if no other executor is using it
-				def workspaceInUse = Jenkins.instance.getComputer(env.NODE_NAME)
-					.executors.any { it.isBusy() && it.currentExecutable?.parent?.executable?.parent == currentBuild.rawBuild }
-
-				if (!workspaceInUse) {
-					echo "Cleaning workspace safely..."
-					cleanWs()
-				} else {
-					echo "Workspace still in use by another job — skipping clean."
-				}
-			}
 		}
 		failure {
 			echo "Pipeline failed ❌"
