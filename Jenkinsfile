@@ -5,14 +5,19 @@ pipeline {
         DOCKER_REGISTRY = "sachinkiet"     // Your DockerHub username or registry
         DOCKER_TAG = "${env.BUILD_NUMBER}" // Auto-tag images with Jenkins build number
     }
+	
+	options {
+        disableConcurrentBuilds()          // Avoid parallel runs locking workspace
+        skipDefaultCheckout()              // We'll do our own checkout
+    }
 
     stages {
         stage('Checkout') {
             steps {
-                // Pull source code from Git
-                git branch: 'main',
-                    url: 'https://eos2git.cec.lab.emc.com/Sachin-Shukla/fastapi_micro_service_arch.git',
-                    credentialsId: '2b561b67-2fce-4300-96c8-9f69d27265f8'
+				// Pull source code from Git
+				git branch: 'main',
+				url: 'https://eos2git.cec.lab.emc.com/Sachin-Shukla/fastapi_micro_service_arch.git',
+				credentialsId: '2b561b67-2fce-4300-96c8-9f69d27265f8'
             }
         }
 		
@@ -71,7 +76,8 @@ pipeline {
 
     post {
         always {
-            echo "Pipeline finished."
+			echo "Pipeline finished."
+            cleanWs() // Clean up workspace after every build to prevent lock issues
         }
         failure {
             echo "Pipeline failed ❌"
