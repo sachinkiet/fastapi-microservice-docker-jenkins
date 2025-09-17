@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 
 from . import database
-from .routes import router as task_router
+from .routes import router as user_router
 from . import models
 import httpx
 
@@ -12,7 +12,7 @@ models.Base.metadata.create_all(bind=database.engine)
 app = FastAPI()
 
 # Include the task router with the specified prefix and tags
-app.include_router(task_router, prefix="/user", tags=["tasks"])
+app.include_router(user_router, prefix="/users", tags=["users"])
 
 
 @app.get("/")
@@ -27,4 +27,4 @@ async def read_root():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("user_service:task_app", host="127.0.0.1", port=8002, reload=True)
+    uvicorn.run("user_service.user_app.main:app", host="127.0.0.1", port=8002, reload=True)

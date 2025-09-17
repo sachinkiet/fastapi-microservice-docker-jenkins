@@ -1,17 +1,13 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
+class UserCreate(BaseModel):
+    username: str
+    email: str
+    full_name: str
 
-# Define the TaskCreate schema
-class TaskCreate(BaseModel):
-    title: str
-    description: str
-
-
-# Define the Task schema
-class Task(BaseModel):
+class User(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
     id: int
-    title: str
-    description: str
-
-    class Config:
-        from_attributes = True  # Enable ORM mode to work with SQLAlchemy models
+    username: str
+    email: str
+    full_name: str

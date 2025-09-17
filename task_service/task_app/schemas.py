@@ -1,15 +1,17 @@
 from pydantic import BaseModel
 
-class UserCreate(BaseModel):
-    username: str
-    email: str
-    full_name: str
 
-class User(BaseModel):
+# Define the TaskCreate schema
+class TaskCreate(BaseModel):
+    title: str
+    description: str
+
+
+# Define the Task schema
+class Task(BaseModel):
     id: int
-    username: str
-    email: str
-    full_name: str
+    title: str
+    description: str
 
     class Config:
-        from_attributes = True
+        from_attributes = True  # Enable ORM mode to work with SQLAlchemy models

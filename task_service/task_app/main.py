@@ -22,4 +22,4 @@ def read_root():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("task-service:task_app", host="127.0.0.1", port=8001, reload=True)
+    uvicorn.run("task-service.task_app.main:task_app", host="127.0.0.1", port=8001, reload=True)
