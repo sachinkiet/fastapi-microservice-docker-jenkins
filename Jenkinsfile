@@ -76,18 +76,30 @@ pipeline {
 
     post {
 		aborted {
-            echo "Build aborted — cleaning up leftover containers..."
-            sh 'docker compose down || true'
-        }
-        always {
+			echo "Build aborted — cleaning up leftover containers..."
+			sh 'docker compose down || true'
+		}
+		always {
 			echo "Pipeline finished."
-            cleanWs() // Clean up workspace after every build to prevent lock issues
-        }
-        failure {
-            echo "Pipeline failed ❌"
-        }
-        success {
-            echo "Pipeline succeeded ✅"
-        }
-    }
+
+			script {
+				// Safely clean workspace only if no other executor is using it
+				def workspaceInUse = Jenkins.instance.getComputer(env.NODE_NAME)
+					.executors.any { it.isBusy() && it.currentExecutable?.parent?.executable?.parent == currentBuild.rawBuild }
+
+				if (!workspaceInUse) {
+					echo "Cleaning workspace safely..."
+					cleanWs()
+				} else {
+					echo "Workspace still in use by another job — skipping clean."
+				}
+			}
+		}
+		failure {
+			echo "Pipeline failed ❌"
+		}
+		success {
+			echo "Pipeline succeeded ✅"
+		}
+	}
 }
