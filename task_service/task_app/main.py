@@ -18,7 +18,7 @@ def index():
     return {"message": "Welcome to the Task Service"}
 
 
-@app.get("/tasks")
+@app.get("/callme")
 def tasks():
     return {"message": "you have called me from another service"}
 

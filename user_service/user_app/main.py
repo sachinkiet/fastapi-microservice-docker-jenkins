@@ -22,7 +22,7 @@ def index():
 @app.get("/call-task-service")
 async def call_task_service():
     async with httpx.AsyncClient() as client:
-        response = await client.get("http://task_service:8001/tasks")
+        response = await client.get("http://task_service:8001/callme")
     return {"message": response.json()}
 
 
