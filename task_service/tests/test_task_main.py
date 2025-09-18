@@ -1,6 +1,7 @@
-from task_service.task_app.main import app
-from httpx import AsyncClient, ASGITransport
 import pytest
+from httpx import AsyncClient, ASGITransport
+from task_service.task_app.main import app
+
 
 @pytest.mark.asyncio
 async def test_root_endpoint():
@@ -10,6 +11,7 @@ async def test_root_endpoint():
         response = await ac.get("/")
     assert response.status_code == 200
     assert "message" in response.json()
+
 
 @pytest.mark.asyncio
 async def test_create_task():

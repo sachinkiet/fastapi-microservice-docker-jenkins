@@ -1,7 +1,8 @@
+import uuid
 import pytest
 from httpx import AsyncClient, ASGITransport
 from user_service.user_app.main import app  # or from task_service.task_app.main import app
-import uuid
+
 
 @pytest.mark.asyncio
 async def test_root_endpoint():
@@ -10,6 +11,7 @@ async def test_root_endpoint():
     async with AsyncClient(transport=transport, base_url="http://test") as ac:
         response = await ac.get("/")
     assert response.status_code == 200
+
 
 @pytest.mark.asyncio
 async def test_create_user():

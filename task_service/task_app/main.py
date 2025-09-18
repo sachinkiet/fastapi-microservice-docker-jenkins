@@ -12,14 +12,18 @@ app = FastAPI()
 # Include the task router with the specified prefix and tags
 app.include_router(task_router, prefix="/tasks", tags=["tasks"])
 
+
 @app.get("/")
-def read_root():
+def index():
     return {"message": "Welcome to the Task Service"}
-    
+
+
 @app.get("/tasks")
-def read_root():
+def tasks():
     return {"message": "you have called me from another service"}
+
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run("task-service.task_app.main:task_app", host="127.0.0.1", port=8001, reload=True)
