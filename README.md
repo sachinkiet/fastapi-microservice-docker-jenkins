@@ -35,16 +35,24 @@ User Service → http://<localhost **/** ip-address>:8002
 ## Run Test manually->
 pytest
 
-## Microservice Endpoints->
-**Task Service**
-Method	Endpoint	Description
-GET    /            {"message": "Welcome to the Task Service"}
-GET    /callme      {"message": "you have called me from another service"}
-POST	/tasks/	Create new task
-GET	/tasks/{task_id}	Get task by ID
-**User Service**
-Method	Endpoint	Description
-GET    /            {"message": "Welcome to the user Service"}
-GET    /call-task-service      {"message": "you have called me from another service"}
-POST	/user/	Create new user
-GET	/user/{user_id}	Get user by ID
+## Microservice Endpoints  
+
+### Task Service  
+
+| Method | Endpoint          | Description                                |
+|--------|-------------------|--------------------------------------------|
+| GET    | `/`               | Welcome to the Task Service                |
+| GET    | `/callme`         | Called from another service                |
+| POST   | `/tasks/`         | Create a new task                          |
+| GET    | `/tasks/{task_id}`| Get task by ID                             |
+
+### User Service  
+
+| Method | Endpoint                 | Description                                |
+|--------|--------------------------|--------------------------------------------|
+| GET    | `/`                      | Welcome to the User Service                |
+| GET    | `/call-task-service`     | Calls Task Service from User Service       |
+| POST   | `/user/`                 | Create a new user                          |
+| GET    | `/user/{user_id}`        | Get user by ID                             |
+
+
