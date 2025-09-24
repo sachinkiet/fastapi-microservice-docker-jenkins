@@ -1,0 +1,16 @@
+services:
+  user_service:
+    build: ./user_service
+    ports:
+      - "8002:8002"
+    volumes:
+      - ./user_service:/user_service
+    restart: always
+
+  task_service:
+    build: ./task_service
+    ports:
+      - "8001:8001"
+    volumes:
+      - ./task_service:/task_service
+    restart: always
