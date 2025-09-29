@@ -5,7 +5,7 @@ pipeline {
         DOCKER_REGISTRY = "sachinkiet"     // Your DockerHub username or registry
         DOCKER_TAG = "${env.BUILD_NUMBER}" // Auto-tag images with Jenkins build number
     }
-	
+
 	options {
         disableConcurrentBuilds()          // Avoid parallel runs locking workspace
         skipDefaultCheckout()              // We'll do our own checkout
@@ -20,7 +20,18 @@ pipeline {
 				credentialsId: '2b561b67-2fce-4300-96c8-9f69d27265f8'
             }
         }
-		
+
+        stage('Lint with Pylint') {
+            steps {
+                sh '''
+                docker run --rm -v $PWD:/app -w /app python:3.11 bash -c "
+                  pip install --break-system-packages pylint &&
+                  pylint user_service/user_app task_service/task_app --disable=C0114,C0115,C0116
+                "
+                '''
+            }
+        }
+
 		stage('Run Tests') {
 			agent any
 			steps {
