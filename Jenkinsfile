@@ -1,14 +1,14 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            image 'python:3.11-slim'
+            args '-u root:root -v /var/run/docker.sock:/var/run/docker.sock'
+        }
+    }
 
     environment {
         DOCKER_REGISTRY = "sachinkiet"
-        DOCKER_TAG = "${env.BUILD_NUMBER}"
-    }
-
-    options {
-        disableConcurrentBuilds()
-        skipDefaultCheckout()
+        DOCKER_TAG = "latest"
     }
 
     stages {
@@ -21,83 +21,60 @@ pipeline {
         }
 
         stage('Install Dependencies') {
-			steps {
-				sh '''
-					python3 -m venv .venv
-					. .venv/bin/activate
-					pip install --upgrade pip
-					pip install -r user_service/requirements.txt
-					pip install -r task_service/requirements.txt
-					pip install pylint black pytest
-				'''
-			}
-		}
+            steps {
+                sh '''
+                    pip install --upgrade pip
+                    pip install pylint black pytest
+                '''
+            }
+        }
 
         stage('Lint') {
             steps {
-                sh '''
-                docker run --rm -v $PWD:/app -w /app python:3.11 bash -c "
-                  make lint
-                "
-                '''
+                sh 'make lint'
             }
         }
 
         stage('Format Check') {
             steps {
-                sh '''
-                docker run --rm -v $PWD:/app -w /app python:3.11 bash -c "
-                  make format
-                "
-                '''
+                sh 'make format'
             }
         }
 
         stage('Run Tests') {
             steps {
-                sh '''
-                docker run --rm -v $PWD:/app -w /app python:3.11 bash -c "
-                  make test
-                "
-                '''
+                sh 'make test'
             }
         }
 
         stage('Build Docker Images') {
             steps {
-                sh "make docker-build DOCKER_REGISTRY=${DOCKER_REGISTRY} DOCKER_TAG=${DOCKER_TAG}"
+                sh 'make docker-build'
             }
         }
 
         stage('Push Docker Images') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKERHUB_USER', passwordVariable: 'DOCKERHUB_PASS')]) {
-                    sh 'echo $DOCKERHUB_PASS | docker login -u $DOCKERHUB_USER --password-stdin'
-                    sh "make docker-push DOCKER_REGISTRY=${DOCKER_REGISTRY} DOCKER_TAG=${DOCKER_TAG}"
-                }
+                sh 'make docker-push'
             }
         }
 
         stage('Deploy with Docker Compose') {
             steps {
-                sh "make docker-deploy"
+                sh 'make docker-deploy'
             }
         }
     }
 
     post {
-        aborted {
-            echo "Build aborted — cleaning up leftover containers..."
-            sh 'docker compose down || true'
-        }
         always {
             echo "Pipeline finished."
         }
-        failure {
-            echo "Pipeline failed ❌"
-        }
         success {
             echo "Pipeline succeeded ✅"
+        }
+        failure {
+            echo "Pipeline failed ❌"
         }
     }
 }
