@@ -6,6 +6,10 @@ PY_SERVICES = user_service task_service
 
 .PHONY: lint format test docker-build docker-push docker-deploy all ci
 
+# Install dependencies
+install:
+	pip install -r requirements.txt
+
 # Lint using the prebuilt Docker image
 lint:
 	@for srv in $(PY_SERVICES); do \
