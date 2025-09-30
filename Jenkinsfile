@@ -21,13 +21,17 @@ pipeline {
         }
 
         stage('Install Dependencies') {
-            steps {
-                sh '''
-                    python3 -m pip install --upgrade pip
-                    python3 -m pip install pylint black pytest
-                '''
-            }
-        }
+			steps {
+				sh '''
+					python3 -m venv .venv
+					. .venv/bin/activate
+					pip install --upgrade pip
+					pip install -r user_service/requirements.txt
+					pip install -r task_service/requirements.txt
+					pip install pylint black pytest
+				'''
+			}
+		}
 
         stage('Lint') {
             steps {
