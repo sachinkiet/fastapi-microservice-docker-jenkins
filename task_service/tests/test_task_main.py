@@ -16,10 +16,7 @@ async def test_root_endpoint():
 @pytest.mark.asyncio
 async def test_create_task():
     """Test creating a task"""
-    new_task = {
-        "title": "Test Task",
-        "description": "Task created from pytest"
-    }
+    new_task = {"title": "Test Task", "description": "Task created from pytest"}
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as ac:
         response = await ac.post("/tasks/", json=new_task)
