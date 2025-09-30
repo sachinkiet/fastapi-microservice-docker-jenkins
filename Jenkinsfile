@@ -12,6 +12,14 @@ pipeline {
     }
 
     stages {
+		stage('Setup Tools') {
+            steps {
+                sh '''
+                    apt-get update && apt-get install -y make git
+                '''
+            }
+        }
+	
         stage('Checkout') {
             steps {
                 git branch: 'main',
