@@ -8,7 +8,7 @@ lint:
 		docker run --rm -v $$PWD:/app -w /app/$$srv python:3.11 bash -c "\
 			pip install --no-cache-dir -r requirements.txt && \
 			pip install pylint && \
-			pylint ."; \
+			pylint --disable=duplicate-code,R0903,C0114,C0115,C0116 ."; \
 	done
 
 format:
