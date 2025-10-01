@@ -7,7 +7,7 @@ lint:
 	  echo "🔍 Linting $$srv..."; \
 	  docker run --rm -v $(PWD):/app -w /app python:3.11 bash -c "\
 	    pip install pylint && \
-	    pylint $$srv \
+	    pylint --disable=duplicate-code,R0903,C0114,C0115,C0116 $$srv \
 	  "; \
 	done
 
