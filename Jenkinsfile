@@ -1,7 +1,7 @@
 pipeline {
     agent {
         docker {
-            image 'python:3.11-slim'
+            image 'python:3.11'
             args '-u root:root -v /var/run/docker.sock:/var/run/docker.sock'
         }
     }
@@ -12,14 +12,6 @@ pipeline {
     }
 
     stages {
-		stage('Setup Tools') {
-            steps {
-                sh '''
-                    apt-get update && apt-get install -y make git
-                '''
-            }
-        }
-	
         stage('Checkout') {
             steps {
                 git branch: 'main',
