@@ -1,31 +1,22 @@
 pipeline {
-    agent {
-        docker {
-            image 'python:3.11'
-            args '-u root:root -v /var/run/docker.sock:/var/run/docker.sock'
-        }
-    }
+    agent any
 
     environment {
-        DOCKER_REGISTRY = "sachinkiet"
-        DOCKER_TAG = "latest"
+        DOCKER_REGISTRY = "sachinkiet"     // Your DockerHub username or registry
+        DOCKER_TAG = "${env.BUILD_NUMBER}" // Auto-tag images with Jenkins build number
+    }
+	
+    options {
+        disableConcurrentBuilds()          // Avoid parallel runs locking workspace
+        skipDefaultCheckout()              // We'll do our own checkout
     }
 
     stages {
         stage('Checkout') {
             steps {
                 git branch: 'main',
-                    url: 'https://eos2git.cec.lab.emc.com/Sachin-Shukla/fastapi_micro_service_arch.git',
-                    credentialsId: '2b561b67-2fce-4300-96c8-9f69d27265f8'
-            }
-        }
-
-        stage('Install Dependencies') {
-            steps {
-                sh '''
-                    pip install --upgrade pip
-                    pip install pylint black pytest
-                '''
+				url: 'https://eos2git.cec.lab.emc.com/Sachin-Shukla/fastapi_micro_service_arch.git',
+				credentialsId: '2b561b67-2fce-4300-96c8-9f69d27265f8'
             }
         }
 
@@ -49,32 +40,46 @@ pipeline {
 
         stage('Build Docker Images') {
             steps {
-                sh 'make docker-build'
+                script {
+                    sh "docker build -t ${DOCKER_REGISTRY}/user_service:${DOCKER_TAG} ./user_service"
+                    sh "docker build -t ${DOCKER_REGISTRY}/task_service:${DOCKER_TAG} ./task_service"
+                }
             }
         }
 
         stage('Push Docker Images') {
             steps {
-                sh 'make docker-push'
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKERHUB_USER', passwordVariable: 'DOCKERHUB_PASS')]) {
+                    sh 'echo $DOCKERHUB_PASS | docker login -u $DOCKERHUB_USER --password-stdin'
+                    sh "docker push ${DOCKER_REGISTRY}/user_service:${DOCKER_TAG}"
+                    sh "docker push ${DOCKER_REGISTRY}/task_service:${DOCKER_TAG}"
+                }
             }
         }
 
         stage('Deploy with Docker Compose') {
             steps {
-                sh 'make docker-deploy'
+                script {
+                    sh "docker compose down || true"
+                    sh "docker compose up -d --pull always"
+                }
             }
         }
     }
 
     post {
+        aborted {
+            echo "Build aborted — cleaning up leftover containers..."
+            sh 'docker compose down || true'
+        }
         always {
             echo "Pipeline finished."
         }
-        success {
-            echo "Pipeline succeeded ✅"
-        }
         failure {
             echo "Pipeline failed ❌"
+        }
+        success {
+            echo "Pipeline succeeded ✅"
         }
     }
 }
