@@ -8,7 +8,7 @@ lint:
 		docker run --rm -v $$PWD:/app -w /app/$$srv python:3.11 bash -c "\
 			pip install --no-cache-dir -r requirements.txt && \
 			pip install pylint && \
-			pylint $$(find . -name '*.py')"; \
+			pylint ."; \
 	done
 
 format:
