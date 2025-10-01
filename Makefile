@@ -4,11 +4,11 @@ PY_SERVICES = user_service task_service
 
 lint:
 	@for srv in $(PY_SERVICES); do \
-	  echo "🔍 Linting $$srv..."; \
-	  docker run --rm -v $(PWD):/app -w /app python:3.11 bash -c "\
-	    pip install pylint && \
-	    pylint --disable=duplicate-code,R0903,C0114,C0115,C0116 $$srv \
-	  "; \
+		echo "🔍 Linting $$srv..."; \
+		docker run --rm -v $$PWD:/app -w /app/$$srv python:3.11 bash -c "\
+			pip install --no-cache-dir -r requirements.txt && \
+			pip install pylint && \
+			pylint $$(find . -name '*.py')"; \
 	done
 
 format:
