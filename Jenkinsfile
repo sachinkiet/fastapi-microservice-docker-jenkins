@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_REGISTRY = "sachinkiet"     // Your DockerHub username or registry
+        DOCKER_REGISTRY = "<username>"     // Your DockerHub username or registry
         DOCKER_TAG = "${env.BUILD_NUMBER}" // Auto-tag images with Jenkins build number
     }
 	
@@ -15,7 +15,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 git branch: 'main',
-				url: 'https://eos2git.cec.lab.emc.com/Sachin-Shukla/fastapi_micro_service_arch.git',
+				url: 'https://github.com/sachinkiet/fastapi-microservice-docker-jenkins.git',
 				credentialsId: '2b561b67-2fce-4300-96c8-9f69d27265f8'
             }
         }
@@ -82,4 +82,5 @@ pipeline {
             echo "Pipeline succeeded ✅"
         }
     }
+
 }
